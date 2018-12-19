@@ -1,1 +1,1 @@
-include ':app', ':scroller_demo'
+include ':example_scroller', ':example_dispatch_event', ':example_item_decoration', ':MakeSign', ':exmaple_stackview', ':example_fragment_proxy_activity_result'
