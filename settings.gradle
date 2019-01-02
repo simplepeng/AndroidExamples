@@ -1,1 +1,1 @@
-include ':example_scroller', ':example_dispatch_event', ':example_item_decoration', ':MakeSign', ':exmaple_stackview'
+include ':example_scroller', ':example_dispatch_event', ':example_item_decoration', ':exmaple_stackview', ':example_image_swiper'
