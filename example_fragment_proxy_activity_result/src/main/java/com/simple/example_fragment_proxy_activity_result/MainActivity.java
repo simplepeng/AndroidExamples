@@ -18,12 +18,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClick(View view) {
 
-        Proxy.with(this)
-                .toActivity(ToActivity.class)
+       ActivityResultProxy.with(this)
+                .setToActivity(ToActivity.class)
                 .setRequestCode(100)
-                .setOnActivityResult(new OnResultListener() {
+                .startActivityForResult(new OnResultListener() {
                     @Override
                     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
                         Log.e("simple", "requestCode ==" + requestCode);
                         Log.e("simple", "resultCode ==" + resultCode);
                         Log.e("simple", "data ==" + data);

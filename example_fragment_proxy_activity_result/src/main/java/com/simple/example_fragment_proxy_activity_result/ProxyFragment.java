@@ -56,7 +56,7 @@ public class ProxyFragment extends Fragment {
             mFragment = fragment;
         }
 
-        public Builder toActivity(Class<?> clz) {
+        public Builder setToActivity(Class<?> clz) {
             mToActivity = clz;
             return this;
         }
@@ -66,7 +66,7 @@ public class ProxyFragment extends Fragment {
             return this;
         }
 
-        public Builder setOnActivityResult(OnResultListener listener) {
+        public Builder startActivityForResult(OnResultListener listener) {
             mOnResultListener = listener;
             return this;
         }
