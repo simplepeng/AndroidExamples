@@ -1,7 +1,7 @@
 package com.simple.scroller_demo;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.Scroller;

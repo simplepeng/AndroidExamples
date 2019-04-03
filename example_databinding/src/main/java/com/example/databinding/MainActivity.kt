@@ -1,8 +1,8 @@
 package com.example.databinding
 
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.databinding.databinding.ActivityMainBinding
 import com.example.databinding.databinding.ItemLayotBinding
 import kotlinx.android.synthetic.main.activity_main.*
@@ -19,7 +19,7 @@ class MainActivity : DataBindingActivity<ActivityMainBinding>() {
         var adapter = Adapter()
         adapter.setItems(items)
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         recyclerView.adapter = adapter
     }
 
