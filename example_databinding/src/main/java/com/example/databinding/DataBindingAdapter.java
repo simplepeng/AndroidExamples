@@ -15,7 +15,7 @@ public abstract class DataBindingAdapter<E, T extends ViewDataBinding> extends R
     protected abstract int getLayoutRes();
 
     protected abstract void onBindViewHolder(@NonNull DataBindingViewHolder<T> viewHolder,
-                                             T dataBinding,
+                                             T binding,
                                              @NonNull E item);
 
     private List<E> items;
@@ -41,7 +41,7 @@ public abstract class DataBindingAdapter<E, T extends ViewDataBinding> extends R
     public void onBindViewHolder(@NonNull DataBindingViewHolder viewHolder, int i) {
         if (viewHolder == null)return;
 
-        T dataBinding = (T) viewHolder.getDataBinding();
+        T dataBinding = (T) viewHolder.getBinding();
         if (dataBinding == null)return;
 
         dataBinding.executePendingBindings();

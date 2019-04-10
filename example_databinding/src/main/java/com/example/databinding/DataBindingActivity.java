@@ -10,9 +10,16 @@ public abstract class DataBindingActivity<T extends ViewDataBinding> extends App
 
     protected abstract int getLayoutRes();
 
+    protected T binding;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        T dataBinding = DataBindingUtil.setContentView(this, getLayoutRes());
+
+        binding = DataBindingUtil.setContentView(this, getLayoutRes());
+    }
+
+    public T getBinding() {
+        return binding;
     }
 }

@@ -8,14 +8,14 @@ import android.view.View;
 
 public class DataBindingViewHolder<T extends ViewDataBinding> extends RecyclerView.ViewHolder {
 
-    private T dataBinding;
+    private T binding;
 
     public DataBindingViewHolder(@NonNull View itemView) {
         super(itemView);
-        dataBinding = DataBindingUtil.getBinding(itemView);
+        binding = DataBindingUtil.getBinding(itemView);
     }
 
-    public T getDataBinding() {
-        return dataBinding;
+    public T getBinding() {
+        return binding;
     }
 }
