@@ -1,5 +1,7 @@
 package com.example.layout_manager
 
+import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
@@ -16,46 +18,173 @@ import androidx.recyclerview.widget.RecyclerView
 
 class StackLayoutManager : RecyclerView.LayoutManager() {
 
+    val TAG = "StackLayoutManager"
+
+    companion object {
+        val VERTICAL = 0
+        val HORIZONTAL = 1
+    }
+
+    private var mOrientation = VERTICAL
+
     override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
         return RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State) {
-        super.onLayoutChildren(recycler, state)
-        if (state.itemCount == 0 || state.isPreLayout) {
-            return
-        }
-
+//        super.onLayoutChildren(recycler, state)
+        log("onLayoutChildren")
         if (itemCount == 0) {//不需要布局
             detachAndScrapAttachedViews(recycler)
             return
         }
 
-        layout(recycler)
+        if (state.itemCount == 0 || state.isPreLayout) {
+            return
+        }
+
+//        在布局之前，将所有的子View先Detach掉，放入到Scrap缓存中
+        detachAndScrapAttachedViews(recycler)
+
+        log("itemCount == " + itemCount)
+        when (mOrientation) {
+            HORIZONTAL -> {
+                layoutHorizontal(recycler)
+            }
+            VERTICAL -> {
+                layoutVertical(recycler)
+            }
+        }
+
     }
 
-    private fun layout(recycler: RecyclerView.Recycler) {
-        if (childCount == 0)return
+    private var offsetHorizontal: Int = 0
+    private var totalWidth: Int = 0
 
+    private fun layoutHorizontal(recycler: RecyclerView.Recycler) {
+//        if (childCount == 0) return
+
+        //定义偏移量
+        var offsetX = 0
+        for (position: Int in 0 until itemCount) {
+            //从缓存中取出view
+            val itemView = recycler.getViewForPosition(position)
+            //讲view添加进recyclerView
+            addView(itemView)
+            //对view测量
+//            measureChild()
+            measureChildWithMargins(itemView, 0, 0)
+            //拿到view的宽高,宽高都是包含ItemDecorate的尺寸
+            val width = getDecoratedMeasuredWidth(itemView)
+            val height = getDecoratedMeasuredHeight(itemView)
+            //对view布局
+//            layoutDecorated()
+            layoutDecoratedWithMargins(itemView, offsetX, 0, width + offsetX, height)
+            offsetX += width
+
+            //
+            totalWidth = offsetX
+        }
+    }
+
+    private fun layoutVertical(recycler: RecyclerView.Recycler) {
+//        if (childCount == 0) return
+
+        //定义偏移量
+        var offsetY = 0
+        for (position: Int in 0 until itemCount) {
+            //从缓存中取出view
+            val itemView = recycler.getViewForPosition(position)
+            //讲view添加进recyclerView
+            addView(itemView)
+            //对view测量
+//            measureChild()
+            measureChildWithMargins(itemView, 0, 0)
+            //拿到view的宽高,宽高都是包含ItemDecorate的尺寸
+            val width = getDecoratedMeasuredWidth(itemView)
+            val height = getDecoratedMeasuredHeight(itemView)
+            //对view布局
+            //如果越界了就回收
+            if (offsetY > getHeight()) {
+                removeAndRecycleView(itemView, recycler)
+            } else {
+//            layoutDecorated()
+                layoutDecoratedWithMargins(itemView, 0, offsetY, width, offsetY + height)
+                offsetY += height
+            }
+        }
+
+        Log.d(TAG, "childCount == " + childCount)
+        Log.d(TAG, "scrapList.size == " + recycler.scrapList.size)
     }
 
     override fun canScrollHorizontally(): Boolean {
-        return true
+//        return super.canScrollHorizontally()
+        return mOrientation == HORIZONTAL
     }
 
-    override fun scrollHorizontallyBy(dx: Int, recycler: RecyclerView.Recycler?,
+    override fun scrollHorizontallyBy(dx: Int, recycler: RecyclerView.Recycler,
                                       state: RecyclerView.State?): Int {
-        return super.scrollHorizontallyBy(dx, recycler, state)
+        Log.d(TAG, "dx == " + dx)
+
+        layoutHorizontal(recycler)
+
+        return -dx
+//        return super.scrollHorizontallyBy(dx, recycler, state)
     }
 
     override fun canScrollVertically(): Boolean {
-        return super.canScrollVertically()
+        return mOrientation == VERTICAL
     }
 
-    override fun scrollVerticallyBy(dy: Int, recycler: RecyclerView.Recycler?,
+    override fun scrollVerticallyBy(dy: Int, recycler: RecyclerView.Recycler,
                                     state: RecyclerView.State?): Int {
-        return super.scrollVerticallyBy(dy, recycler, state)
+        Log.d(TAG, "dy == " + dy)
+
+        var realOffset = dy
+        offsetChildrenVertical(-realOffset)
+
+        return realOffset
     }
 
+
+    fun getVerticalSpace(): Int {
+        return height - paddingTop - paddingBottom
+    }
+
+    fun getHorizontalSpace(): Int {
+        return width - paddingLeft - paddingRight
+    }
+
+    /**
+     * 获取某个childView在水平方向所占的空间
+     *
+     * @param view
+     * @return
+     */
+    fun getDecoratedMeasurementHorizontal(view: View): Int {
+        val params = view.layoutParams as RecyclerView.LayoutParams
+        return getDecoratedMeasuredWidth(view) + params.leftMargin + params.rightMargin;
+    }
+
+    /**
+     * 获取某个childView在竖直方向所占的空间
+     *
+     * @param view
+     * @return
+     */
+    fun getDecoratedMeasurementVertical(view: View): Int {
+        val params = view.layoutParams as RecyclerView.LayoutParams
+        return getDecoratedMeasuredHeight(view) + params.topMargin + params.bottomMargin;
+    }
+
+    override fun onAdapterChanged(oldAdapter: RecyclerView.Adapter<*>?, newAdapter: RecyclerView.Adapter<*>?) {
+        super.onAdapterChanged(oldAdapter, newAdapter)
+
+    }
+
+    fun log(message: String) {
+        Log.d(TAG, message)
+    }
 
 }

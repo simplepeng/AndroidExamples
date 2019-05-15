@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
@@ -25,8 +26,17 @@ class MainActivity : AppCompatActivity() {
         mItems.add(Color.GRAY)
         mItems.add(Color.BLUE)
 
+        mItems.add(Color.RED)
+        mItems.add(Color.YELLOW)
+        mItems.add(Color.BLACK)
+        mItems.add(Color.GREEN)
+        mItems.add(Color.GRAY)
+        mItems.add(Color.BLUE)
+
+
         recyclerView.run {
-            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+            //            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+            layoutManager = StackLayoutManager()
             adapter = ItemAdapter()
         }
     }
@@ -41,12 +51,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ItemHolder, position: Int) {
-            holder.iv_item.setBackgroundColor(mItems[position])
+            holder.iv_item.run {
+                setText(position.toString())
+                setBackgroundColor(mItems[position])
+            }
         }
 
     }
 
     inner class ItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val iv_item: View = itemView.findViewById(R.id.iv_item)
+        val iv_item: TextView = itemView.findViewById(R.id.iv_item)
     }
 }
