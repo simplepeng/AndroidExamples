@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 class StackLayoutManager : RecyclerView.LayoutManager() {
 
     val TAG = "StackLayoutManager"
-    private lateinit var helper: OrientationHelper;
+    private lateinit var helper: OrientationHelper
 
     companion object {
         val VERTICAL = 0
@@ -131,8 +131,8 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
 
             if (offsetY > totalSpace) break
             addView(itemView)
-            layoutDecorated(itemView, 0, offsetY, itemWidth, offsetY + (itemHeight / 2))
-            offsetY += (itemHeight / 2)
+            layoutDecorated(itemView, 0, offsetY, itemWidth, offsetY + itemHeight)
+            offsetY += itemHeight / 2
         }
 
         Log.d(TAG, "childCount == " + childCount)
@@ -160,13 +160,47 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
     }
 
     override fun scrollVerticallyBy(dy: Int, recycler: RecyclerView.Recycler,
-                                    state: RecyclerView.State?): Int {
-        Log.d(TAG, "dy == " + dy)
+                                    state: RecyclerView.State): Int {
+        super.scrollVerticallyBy(dy, recycler, state)
+//        Log.d(TAG, "dy == " + dy)
+        val willScroll = dy
+        //回收不可见的childview
+        val childCount = childCount
+        for (position in 0..childCount) {
+            val itemView = getChildAt(position)
+            if (dy > 0) {//上拉
 
-        var realOffset = dy
-        offsetChildrenVertical(-realOffset)
+            } else {//下拉
+//                val end = helper.getDecoratedEnd(itemView);
+//                Log.d(TAG, "end == " + end)
+            }
+        }
+        //将新出现的childview layout 出来
+        if (dy > 0) {//上拉
+            val lastView = getChildAt(childCount - 1)
+            lastView?.let { view ->
+                val nextPosition = getPosition(view) + 1
+                val offset = helper.getDecoratedEnd(lastView)
+                Log.d(TAG, "end == " + offset)
+                if (offset < height - paddingBottom) {//添加新的itemView
+                    if (nextPosition < state.itemCount) {
+                        val nextItemView = recycler.getViewForPosition(nextPosition)
+                        addView(nextItemView)
+                        measureChildWithMargins(nextItemView, 0, 0)
+                        val height = getDecoratedMeasuredHeight(nextItemView)
+                        val width = getDecoratedMeasuredWidth(nextItemView)
+                        val top = offset - height / 2
+                        layoutDecorated(nextItemView, 0, top, width, top + height)
+                    }
+                }
+            }
+        } else {//下拉
 
-        return realOffset
+        }
+        //移动childview
+
+        offsetChildrenVertical(-willScroll)
+        return willScroll
     }
 
 

@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -19,19 +17,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mItems.add(Color.RED)
-        mItems.add(Color.YELLOW)
-        mItems.add(Color.BLACK)
-        mItems.add(Color.GREEN)
-        mItems.add(Color.GRAY)
-        mItems.add(Color.BLUE)
+        for (i in 0..3) {
+            mItems.add(Color.RED)
+            mItems.add(Color.YELLOW)
+            mItems.add(Color.BLACK)
+            mItems.add(Color.GREEN)
+            mItems.add(Color.GRAY)
+            mItems.add(Color.BLUE)
 
-        mItems.add(Color.RED)
-        mItems.add(Color.YELLOW)
-        mItems.add(Color.BLACK)
-        mItems.add(Color.GREEN)
-        mItems.add(Color.GRAY)
-        mItems.add(Color.BLUE)
+            mItems.add(Color.RED)
+            mItems.add(Color.YELLOW)
+            mItems.add(Color.BLACK)
+            mItems.add(Color.GREEN)
+            mItems.add(Color.GRAY)
+            mItems.add(Color.BLUE)
+        }
 
 
         recyclerView.run {
@@ -53,13 +53,14 @@ class MainActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ItemHolder, position: Int) {
             holder.iv_item.run {
                 setText(position.toString())
-                setBackgroundColor(mItems[position])
+//                setBackgroundColor(mItems[position])
+                setColor(mItems[position])
             }
         }
 
     }
 
     inner class ItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val iv_item: TextView = itemView.findViewById(R.id.iv_item)
+        val iv_item: CircleTextView = itemView.findViewById(R.id.iv_item)
     }
 }

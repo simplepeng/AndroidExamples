@@ -4,14 +4,13 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TextView
+    <com.example.layout_manager.CircleTextView
         android:id="@+id/iv_item"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:background="@color/colorAccent"
         android:gravity="center"
         android:text="1"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/background_dark"
         android:textSize="22sp" />
 
 </FrameLayout>
