@@ -161,27 +161,32 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
 
     override fun scrollVerticallyBy(dy: Int, recycler: RecyclerView.Recycler,
                                     state: RecyclerView.State): Int {
-        super.scrollVerticallyBy(dy, recycler, state)
+//        super.scrollVerticallyBy(dy, recycler, state)
 //        Log.d(TAG, "dy == " + dy)
+        if (childCount == 0) return super.scrollVerticallyBy(dy, recycler, state)
         val willScroll = dy
+
         //回收不可见的childview
         val childCount = childCount
-        for (position in 0..childCount) {
+
+        for (position in 0 until childCount) {
             val itemView = getChildAt(position)
             if (dy > 0) {//上拉
-
+                val end = helper.getDecoratedEnd(itemView)
+                Log.d(TAG, "end == " + end)
             } else {//下拉
 //                val end = helper.getDecoratedEnd(itemView);
 //                Log.d(TAG, "end == " + end)
             }
         }
+
         //将新出现的childview layout 出来
         if (dy > 0) {//上拉
             val lastView = getChildAt(childCount - 1)
             lastView?.let { view ->
                 val nextPosition = getPosition(view) + 1
                 val offset = helper.getDecoratedEnd(lastView)
-                Log.d(TAG, "end == " + offset)
+//                Log.d(TAG, "end == " + offset)
                 if (offset < height - paddingBottom) {//添加新的itemView
                     if (nextPosition < state.itemCount) {
                         val nextItemView = recycler.getViewForPosition(nextPosition)
