@@ -169,15 +169,28 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
         //回收不可见的childview
         val childCount = childCount
 
-        for (position in 0 until childCount) {
-            val itemView = getChildAt(position)
-            if (dy > 0) {//上拉
-                val end = helper.getDecoratedEnd(itemView)
-                Log.d(TAG, "end == " + end)
-            } else {//下拉
-//                val end = helper.getDecoratedEnd(itemView);
+//        for (position in 0 until childCount) {
+//            val itemView = getChildAt(position)
+//            if (dy > 0) {//上拉
+//                val end = helper.getDecoratedEnd(itemView)
 //                Log.d(TAG, "end == " + end)
+//            } else {//下拉
+////                val end = helper.getDecoratedEnd(itemView);
+////                Log.d(TAG, "end == " + end)
+//            }
+//        }
+
+        if (dy > 0) {//上拉
+            val firstItemView = getChildAt(0)
+            firstItemView?.let {
+                val endY = helper.getDecoratedEnd(firstItemView)
+//            Log.d(TAG, "endY == " + endY)
+                if (endY < paddingTop) {
+                    removeAndRecycleView(firstItemView, recycler)
+                }
             }
+        } else {//下拉
+
         }
 
         //将新出现的childview layout 出来
@@ -205,6 +218,9 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
         //移动childview
 
         offsetChildrenVertical(-willScroll)
+
+        Log.d(TAG, "childCount == " + childCount)
+        Log.d(TAG, "scrapList.size == " + recycler.scrapList.size)
         return willScroll
     }
 
