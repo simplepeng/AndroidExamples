@@ -1,5 +1,6 @@
 package com.example.image_browser
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.view.View
@@ -22,10 +23,12 @@ class ImageBrowser {
             intent.putExtra("index", index)
 
 
-            val optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(view,
-                    view.width / 2, view.height / 2,
-                    0, 0)
+//            val optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(view,
+//                    view.width / 2, view.height / 2,
+//                    0, 0)
 
+            val optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(context as Activity,
+                    view,"shareView")
             try {
                 ActivityCompat.startActivity(context, intent, optionsCompat.toBundle())
             } catch (e: Exception) {

@@ -3,6 +3,7 @@ package com.example.layout_manager
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 
 /**
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 class StackLayoutManager : RecyclerView.LayoutManager() {
 
     val TAG = "StackLayoutManager"
+    private lateinit var helper: OrientationHelper;
 
     companion object {
         val VERTICAL = 0
@@ -52,7 +54,7 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
                 layoutHorizontal(recycler)
             }
             VERTICAL -> {
-                layoutVertical(recycler)
+                layoutVertical(recycler, state)
             }
         }
 
@@ -87,9 +89,9 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
         }
     }
 
-    private fun layoutVertical(recycler: RecyclerView.Recycler) {
+    private fun layoutVertical(recycler: RecyclerView.Recycler, state: RecyclerView.State) {
 //        if (childCount == 0) return
-
+/*
         //定义偏移量
         var offsetY = 0
         for (position: Int in 0 until itemCount) {
@@ -109,14 +111,34 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
                 removeAndRecycleView(itemView, recycler)
             } else {
 //            layoutDecorated()
-                layoutDecoratedWithMargins(itemView, 0, offsetY, width, offsetY + height)
+                val y = offsetY + height
+                layoutDecoratedWithMargins(itemView, 0, offsetY, width, y)
                 offsetY += height
             }
+//            OrientationHelper
+        }
+ */
+
+        helper = OrientationHelper.createOrientationHelper(this, RecyclerView.VERTICAL)
+        val totalSpace = helper.totalSpace
+        val itemCount = state.itemCount
+        var offsetY = 0
+        for (position in 0..itemCount) {
+            val itemView = recycler.getViewForPosition(position)
+            measureChildWithMargins(itemView, 0, 0)
+            val itemWidth = getDecoratedMeasuredWidth(itemView)
+            val itemHeight = getDecoratedMeasuredHeight(itemView)
+
+            if (offsetY > totalSpace) break
+            addView(itemView)
+            layoutDecorated(itemView, 0, offsetY, itemWidth, offsetY + (itemHeight / 2))
+            offsetY += (itemHeight / 2)
         }
 
         Log.d(TAG, "childCount == " + childCount)
         Log.d(TAG, "scrapList.size == " + recycler.scrapList.size)
     }
+
 
     override fun canScrollHorizontally(): Boolean {
 //        return super.canScrollHorizontally()

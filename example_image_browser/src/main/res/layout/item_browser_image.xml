@@ -5,14 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:dragDismissDistance="112dp"
+    android:transitionName="shareView"
     app:dragDismissScale="0.5"
     android:orientation="vertical">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_gravity="center"
+        android:layout_height="wrap_content">
 
         <FrameLayout
+            android:id="@+id/contentView"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
