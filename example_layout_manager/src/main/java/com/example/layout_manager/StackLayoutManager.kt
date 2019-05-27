@@ -164,7 +164,7 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
 //        super.scrollVerticallyBy(dy, recycler, state)
 //        Log.d(TAG, "dy == " + dy)
         if (childCount == 0) return super.scrollVerticallyBy(dy, recycler, state)
-        val willScroll = dy
+        var willScroll = dy
 
         //回收不可见的childview
         val childCount = childCount
@@ -186,41 +186,70 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
                 val endY = helper.getDecoratedEnd(firstItemView)
 //            Log.d(TAG, "endY == " + endY)
                 if (endY < paddingTop) {
-                    removeAndRecycleView(firstItemView, recycler)
+//                    removeAndRecycleView(firstItemView, recycler)
+                    detachAndScrapView(firstItemView, recycler)
                 }
             }
         } else {//下拉
-
+            val lastItemView = getChildAt(childCount - 1)
+            lastItemView?.let {
+                val endY = helper.getDecoratedStart(lastItemView)
+                if (endY > height) {
+//                    removeAndRecycleView(lastItemView, recycler)
+                    detachAndScrapView(lastItemView, recycler)
+                }
+            }
         }
 
         //将新出现的childview layout 出来
         if (dy > 0) {//上拉
             val lastView = getChildAt(childCount - 1)
             lastView?.let { view ->
-                val nextPosition = getPosition(view) + 1
-                val offset = helper.getDecoratedEnd(lastView)
-//                Log.d(TAG, "end == " + offset)
-                if (offset < height - paddingBottom) {//添加新的itemView
+                val endY = helper.getDecoratedEnd(lastView)
+//                Log.d(TAG, "lastView endY == " + endY)
+                if (endY - (getDecoratedMeasuredHeight(lastView) / 2) < height) {//添加新的itemView
+                    val nextPosition = getPosition(view) + 1
                     if (nextPosition < state.itemCount) {
                         val nextItemView = recycler.getViewForPosition(nextPosition)
                         addView(nextItemView)
                         measureChildWithMargins(nextItemView, 0, 0)
                         val height = getDecoratedMeasuredHeight(nextItemView)
                         val width = getDecoratedMeasuredWidth(nextItemView)
-                        val top = offset - height / 2
+                        val top = endY - height / 2
                         layoutDecorated(nextItemView, 0, top, width, top + height)
+                    } else {
+                        willScroll = 0
                     }
                 }
             }
         } else {//下拉
-
+            val firstItemView = getChildAt(0)
+            firstItemView?.let {
+                val endY = helper.getDecoratedEnd(firstItemView)
+                if (endY - (getDecoratedMeasuredHeight(firstItemView) / 2) >= paddingTop) {
+                    val lastPosition = getPosition(it) - 1
+                    if (lastPosition < state.itemCount && lastPosition > 0) {
+                        val lastItemView = recycler.getViewForPosition(lastPosition)
+//                        attachView(lastItemView)
+                        addView(lastItemView, 0)
+                        measureChildWithMargins(lastItemView, 0, 0)
+                        val height = getDecoratedMeasuredHeight(lastItemView)
+                        val width = getDecoratedMeasuredWidth(lastItemView)
+                        val top = endY - height - (height / 2)
+                        val bottom = endY - height / 2
+                        layoutDecorated(lastItemView, 0, top, width, bottom)
+                    } else {
+                        willScroll = 0
+                    }
+                }
+            }
         }
         //移动childview
 
         offsetChildrenVertical(-willScroll)
 
-        Log.d(TAG, "childCount == " + childCount)
-        Log.d(TAG, "scrapList.size == " + recycler.scrapList.size)
+//        Log.d(TAG, "childCount == " + childCount)
+//        Log.d(TAG, "scrapList.size == " + recycler.scrapList.size)
         return willScroll
     }
 
