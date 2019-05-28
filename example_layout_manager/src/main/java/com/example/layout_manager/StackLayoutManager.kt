@@ -163,7 +163,9 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
                                     state: RecyclerView.State): Int {
 //        super.scrollVerticallyBy(dy, recycler, state)
 //        Log.d(TAG, "dy == " + dy)
-        if (childCount == 0) return super.scrollVerticallyBy(dy, recycler, state)
+        if (childCount == 0 || dy == 0) {
+            return 0
+        }
         var willScroll = dy
 
         //回收不可见的childview
@@ -180,7 +182,7 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
 //            }
 //        }
 
-        if (dy > 0) {//上拉
+        if (willScroll > 0) {//上拉
             val firstItemView = getChildAt(0)
             firstItemView?.let {
                 val endY = helper.getDecoratedEnd(firstItemView)
@@ -202,7 +204,7 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
         }
 
         //将新出现的childview layout 出来
-        if (dy > 0) {//上拉
+        if (willScroll > 0) {//上拉
             val lastView = getChildAt(childCount - 1)
             lastView?.let { view ->
                 val endY = helper.getDecoratedEnd(lastView)
@@ -246,7 +248,8 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
         }
         //移动childview
 
-        offsetChildrenVertical(-willScroll)
+//        offsetChildrenVertical(-willScroll)
+        helper.offsetChildren(-willScroll)
 
 //        Log.d(TAG, "childCount == " + childCount)
 //        Log.d(TAG, "scrapList.size == " + recycler.scrapList.size)

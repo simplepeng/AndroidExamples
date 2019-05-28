@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -37,6 +38,11 @@ class MainActivity : AppCompatActivity() {
         recyclerView.run {
             //            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
             layoutManager = StackLayoutManager()
+            adapter = ItemAdapter()
+        }
+
+        recyclerView2.run {
+            layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = ItemAdapter()
         }
     }
