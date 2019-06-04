@@ -123,13 +123,13 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
         val totalSpace = helper.totalSpace
         val itemCount = state.itemCount
         var offsetY = 0
-        for (position in 0..itemCount) {
+        for (position in 0..itemCount-1) {
             val itemView = recycler.getViewForPosition(position)
             measureChildWithMargins(itemView, 0, 0)
             val itemWidth = getDecoratedMeasuredWidth(itemView)
             val itemHeight = getDecoratedMeasuredHeight(itemView)
 
-            if (offsetY > totalSpace) break
+//            if (offsetY > totalSpace) break
             addView(itemView)
             layoutDecorated(itemView, 0, offsetY, itemWidth, offsetY + itemHeight)
             offsetY += itemHeight / 2

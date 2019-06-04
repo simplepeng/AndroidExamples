@@ -12,6 +12,8 @@ class OneActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base)
 
+        Log.e(MainActivity.TAG, "OneActivity onCreate")
+
         tv_num.text = "one"
 
         tv_num.setOnClickListener {
@@ -19,8 +21,28 @@ class OneActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        Log.e(MainActivity.TAG, "OneActivity onStart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.e(MainActivity.TAG, "OneActivity onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.e(MainActivity.TAG, "OneActivity onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.e(MainActivity.TAG, "OneActivity onStop")
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(MainActivity.TAG, "OneActivity onDestroy")
+        Log.e(MainActivity.TAG, "OneActivity onDestroy")
     }
 }
