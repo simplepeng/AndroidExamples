@@ -57,7 +57,9 @@ public class FortuneView extends View {
         chartPaint.setPathEffect(new CornerPathEffect(dp2px(10)));
 
         shaderPaint.setColor(Color.BLACK);
-
+        shaderPaint.setStyle(Paint.Style.FILL);
+        shaderPaint.setStrokeWidth(dp2px(3));
+        shaderPaint.setPathEffect(new CornerPathEffect(dp2px(10)));
     }
 
     @Override
@@ -129,7 +131,7 @@ public class FortuneView extends View {
 //        Integer x6 = mXList.get(5);
         Integer x7 = mXList.get(6);
 //
-//        Integer y1 = mYList.get(0);
+        Integer y1 = mYList.get(0);
 //        Integer y2 = mYList.get(1);
 //        Integer y3 = mYList.get(2);
         Integer y4 = mYList.get(3);
@@ -146,7 +148,7 @@ public class FortuneView extends View {
 //        Point p4 = mPoints.get(3);
 //        Point p5 = mPoints.get(4);
 //        Point p6 = mPoints.get(5);
-//        Point p7 = mPoints.get(6);
+        Point p7 = mPoints.get(6);
 //
 //        path.moveTo(x1, y5);
 //        path.lineTo(p1.x, p1.y);
@@ -166,8 +168,12 @@ public class FortuneView extends View {
             }
         }
         shaderPath.set(path);
+        shaderPath.lineTo(p7.x,p7.y);
+        shaderPath.lineTo(x7,y5);
         shaderPath.lineTo(x7,y5);
         shaderPath.lineTo(x1,y5);
+        shaderPath.lineTo(x1,y5);
+        shaderPath.lineTo(x1,y1);
         shaderPath.close();
 
         canvas.drawPath(path, chartPaint);
