@@ -122,7 +122,7 @@ public class FortuneView extends View {
     private void drawChart(Canvas canvas) {
         canvas.save();
         int leftText_w = (int) leftPaint.measureText("100");
-        canvas.translate(leftText_w, 0);
+        canvas.translate(leftText_w+(leftText_w/2), 0);
         Integer x1 = mXList.get(0);
         Integer x2 = mXList.get(1);
 //        Integer x3 = mXList.get(2);
@@ -173,7 +173,7 @@ public class FortuneView extends View {
         shaderPath.lineTo(x7,y5);
         shaderPath.lineTo(x1,y5);
         shaderPath.lineTo(x1,y5);
-        shaderPath.lineTo(x1,y1);
+//        shaderPath.lineTo(x1,y1);
         shaderPath.close();
 
         canvas.drawPath(path, chartPaint);
