@@ -34,7 +34,7 @@ public class FortuneView extends View {
 
     //垂直方向一段的距离
     private int mYDis;
-    private List<Point> mPoints = new ArrayList<>();
+    private ArrayList<Point> mPoints = new ArrayList<>();
     private Path path = new Path();
 
     private Shader mShader;
@@ -54,12 +54,12 @@ public class FortuneView extends View {
         chartPaint.setColor(Color.RED);
         chartPaint.setStyle(Paint.Style.STROKE);
         chartPaint.setStrokeWidth(dp2px(3));
-        chartPaint.setPathEffect(new CornerPathEffect(dp2px(10)));
+//        chartPaint.setPathEffect(new CornerPathEffect(dp2px(10)));
 
         shaderPaint.setColor(Color.BLACK);
         shaderPaint.setStyle(Paint.Style.FILL);
         shaderPaint.setStrokeWidth(dp2px(3));
-        shaderPaint.setPathEffect(new CornerPathEffect(dp2px(10)));
+//        shaderPaint.setPathEffect(new CornerPathEffect(dp2px(10)));
     }
 
     @Override
@@ -120,6 +120,7 @@ public class FortuneView extends View {
     }
 
     private void drawChart(Canvas canvas) {
+        mPoints.clear();
         canvas.save();
         int leftText_w = (int) leftPaint.measureText("100");
         canvas.translate(leftText_w+(leftText_w/2), 0);
@@ -141,43 +142,36 @@ public class FortuneView extends View {
             Point point = new Point(x, getRowValue(values[mXList.indexOf(x)]));
             mPoints.add(point);
         }
-//
-//        Point p1 = mPoints.get(0);
-//        Point p2 = mPoints.get(1);
-//        Point p3 = mPoints.get(2);
-//        Point p4 = mPoints.get(3);
-//        Point p5 = mPoints.get(4);
-//        Point p6 = mPoints.get(5);
+
         Point p7 = mPoints.get(6);
-//
-//        path.moveTo(x1, y5);
-//        path.lineTo(p1.x, p1.y);
-//        path.cubicTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
-//        path.cubicTo(p3.x, p3.y, p4.x, p4.y, p5.x, p5.y);
-//        path.cubicTo(p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
-//        path.cubicTo(p4.x, p4.y, p5.x, p5.y, p6.x, p6.y);
 
-//        path.lineTo(p7.x, y5);
-//        path.close();
-        for (int i = 0; i < mPoints.size(); i++) {
-            Point point = mPoints.get(i);
-            if (i == 0) {
-                path.moveTo(point.x, point.y);
-            } else {
-                path.lineTo(point.x, point.y);
-            }
-        }
-        shaderPath.set(path);
-        shaderPath.lineTo(p7.x,p7.y);
-        shaderPath.lineTo(x7,y5);
-        shaderPath.lineTo(x7,y5);
-        shaderPath.lineTo(x1,y5);
-        shaderPath.lineTo(x1,y5);
+//        for (int i = 0; i < mPoints.size(); i++) {
+//            Point point = mPoints.get(i);
+//            if (i == 0) {
+//                path.moveTo(point.x, point.y);
+//            } else {
+//                path.lineTo(point.x, point.y);
+//            }
+//        }
+//        shaderPath.set(path);
+//        shaderPath.lineTo(p7.x,p7.y);
+//        shaderPath.lineTo(x7,y5);
+//        shaderPath.lineTo(x7,y5);
+//        shaderPath.lineTo(x1,y5);
+//        shaderPath.lineTo(x1,y5);
 //        shaderPath.lineTo(x1,y1);
-        shaderPath.close();
+//        shaderPath.close();
 
-        canvas.drawPath(path, chartPaint);
-        canvas.drawPath(shaderPath,shaderPaint);
+        Path iPath = createBezierPath(path,mPoints,0.2f);
+        Path iShaderPath = new Path();
+        iShaderPath.addPath(iPath);
+        iPath.lineTo(x7,y5);
+        iPath.lineTo(x1,y5);
+        iPath.close();
+
+        canvas.drawPath(iPath, chartPaint);
+        canvas.drawPath(iShaderPath,shaderPaint);
+//        canvas.drawPath(iPath,shaderPaint);
 
         canvas.restore();
     }
@@ -191,4 +185,46 @@ public class FortuneView extends View {
         return (int) (dpValue * scale + 0.5f);
     }
 
+    /**
+     * 创建贝塞尔曲线的path
+     *
+     * @param path      贝塞尔曲线的path，如果传入空则会返回一个新的Path
+     * @param data      数据集，里边的连接曲线的所有点；至少两个点才行(两点只是直线)；
+     * @param intensity 平滑度，范围[0f, 1f]
+     * @return
+     */
+    public static Path createBezierPath(Path path, ArrayList<Point> data, float intensity) {
+        if (data.isEmpty() || data.size() <= 1) {   //  至少两个点
+            return path;
+        }
+        if (path == null) path = new Path();
+        path.reset();
+
+        Point cur = null;
+        Point prev = null;
+        Point prePre = null;
+        Point next = null;
+        int nextIndex = 0;
+
+        cur = prev = prePre = data.get(0);
+
+        path.moveTo(cur.x, cur.y);
+        for (int j = 1; j < data.size(); j++) {
+            prePre = prev;
+            prev = cur;
+            cur = nextIndex == j ? next : data.get(j);
+            nextIndex = j + 1 < data.size() ? j + 1 : j;
+            next = data.get(nextIndex);
+
+            float prevDx = (cur.x - prePre.x) * intensity;
+            float prevDy = (cur.y - prePre.y) * intensity;
+            float curDx = (next.x - prev.x) * intensity;
+            float curDy = (next.y - prev.y) * intensity;
+
+            path.cubicTo(prev.x + prevDx, (prev.y + prevDy),
+                    cur.x - curDx,
+                    (cur.y - curDy), cur.x, cur.y);
+        }
+        return path;
+    }
 }

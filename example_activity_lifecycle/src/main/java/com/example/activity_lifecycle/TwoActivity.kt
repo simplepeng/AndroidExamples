@@ -15,7 +15,10 @@ class TwoActivity : AppCompatActivity() {
         tv_num.text = "two"
 
         tv_num.setOnClickListener {
-            startActivity(Intent(this@TwoActivity, MainActivity::class.java))
+            val intent = Intent(this@TwoActivity, MainActivity::class.java)
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+//            startActivity(Intent(this@TwoActivity, MainActivity::class.java))
         }
     }
 
