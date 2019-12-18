@@ -17,6 +17,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".constructor.ConstructorActivity" />
+        <activity android:name=".measure.MeasureActivity" />
+        <activity android:name=".canvas.CanvasActivity" />
     </application>
 
 </manifest>
