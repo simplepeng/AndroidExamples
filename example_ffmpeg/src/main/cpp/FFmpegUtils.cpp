@@ -9,5 +9,4 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getVersion(JNIEnv *env, jclass cla
     return env->NewStringUTF(version);
 }
 
-
 }

@@ -20,10 +20,18 @@ android {
             }
         }
 
+        //so查找路径
         sourceSets {
             main {
                 jniLibs.srcDirs = ['libs']
             }
+        }
+    }
+
+    //cmake文件的查找路径
+    externalNativeBuild {
+        cmake {
+            path file('CMakeLists.txt')
         }
     }
 
@@ -35,12 +43,7 @@ android {
         }
     }
 
-    //cmake文件的查找路径
-    externalNativeBuild {
-        cmake {
-            path file('CMakeLists.txt')
-        }
-    }
+
 }
 
 dependencies {
