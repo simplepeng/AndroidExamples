@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.4.1)
 add_library(utils #so名称
         SHARED #动态库
         src/main/cpp/FFmpegUtils.cpp
+        src/main/cpp/ffmpeg.c
         )
 
 # 添加外部的库(可以是动态库或静态库)
