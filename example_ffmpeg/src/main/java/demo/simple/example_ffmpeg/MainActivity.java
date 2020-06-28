@@ -16,5 +16,9 @@ public class MainActivity extends AppCompatActivity {
         tvVersion.setText(getVersion());
     }
 
+    static {
+        System.loadLibrary("utils");
+    }
+
     public static native String getVersion();
 }
