@@ -14,8 +14,10 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         //ndk so架构的选择
-        ndk {
-            abiFilters 'armeabi-v7a'
+        externalNativeBuild {
+            ndk {
+                abiFilters 'armeabi-v7a'
+            }
         }
 
         sourceSets {
@@ -24,6 +26,7 @@ android {
             }
         }
     }
+
 
     buildTypes {
         release {
