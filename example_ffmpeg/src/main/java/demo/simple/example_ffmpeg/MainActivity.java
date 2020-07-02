@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -49,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
     private void reqPermission() {
         AndPermission.with(this)
                 .runtime()
-                .permission(Permission.READ_EXTERNAL_STORAGE)
+                .permission(Permission.READ_EXTERNAL_STORAGE,
+                        Permission.WRITE_EXTERNAL_STORAGE)
                 .onGranted(new Action<List<String>>() {
                     @Override
                     public void onAction(List<String> data) {
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
             toast("path不存在");
             return;
         }
+//        Bitmap bitmap = Bitmap.createBitmap(getCover(path), 1080, 1920, Bitmap.Config.RGB_565);
         Bitmap bitmap = getCover(path);
         if (bitmap == null) {
             toast("native bitmap result == null");
