@@ -74,6 +74,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        Log.d(TAG, "bitmap width == " + bitmap.getWidth());
+        Log.d(TAG, "bitmap height == " + bitmap.getHeight());
+        Log.d(TAG, "bitmap config == " + bitmap.getConfig().name());
+        Log.d(TAG, "bitmap byteCount == " + bitmap.getByteCount());
+
         ImageView ivCover = findViewById(R.id.ivCover);
         ivCover.setImageBitmap(bitmap);
     }

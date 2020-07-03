@@ -27,5 +27,6 @@ find_library(log-lib log)
 #  链接库
 target_link_libraries(
         utils
-       ${SO_DIR}
+        ${SO_DIR}
+        jnigraphics
         ${log-lib})
