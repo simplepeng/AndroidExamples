@@ -1,4 +1,6 @@
 #include <jni.h>
+#include <libyuv.h>
+#include <libyuv/convert_from.h>
 
 extern "C" {
 #include <libavutil/avutil.h>
@@ -9,6 +11,8 @@ extern "C" {
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 #include "android/bitmap.h"
+#include "libyuv.h"
+#include "libyuv/convert_argb.h"
 
 #define logDebug(...) __android_log_print(ANDROID_LOG_DEBUG,"MainActivity",__VA_ARGS__)
 
@@ -237,16 +241,22 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
                   codec_ctx->height, pFrameRGB->data, pFrameRGB->linesize);
     }
 
-    fill_bitmap(&info, addr_pixels, pFrameRGB);
+//    fill_bitmap(&info, addr_pixels, pFrameRGB);
+    int linesize = pFrame->width * 4;
+    libyuv::I420ToABGR(pFrame->data[0], pFrame->linesize[0], // Y
+                       pFrame->data[1], pFrame->linesize[1], // U
+                       pFrame->data[2], pFrame->linesize[2], // V
+                       (uint8_t *) addr_pixels, linesize,  // RGBA
+                       pFrame->width, pFrame->height);
 
     //av_free_packet(&pkg) @deprecated Use av_packet_unref
     av_packet_unref(&pkg);
 
-//    ret = AndroidBitmap_unlockPixels(env, bmp);
-//    if (ret < 0) {
-//        logDebug("unlockPixels error");
-//        return nullptr;
-//    }
+    ret = AndroidBitmap_unlockPixels(env, bmp);
+    if (ret < 0) {
+        logDebug("unlockPixels error");
+        return nullptr;
+    }
 
     logDebug("读取首帧完毕");
 

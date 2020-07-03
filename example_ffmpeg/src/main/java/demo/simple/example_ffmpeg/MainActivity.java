@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("avutil");
         System.loadLibrary("swresample");
         System.loadLibrary("swscale");
+        System.loadLibrary("yuv");
     }
 
     public static native String getVersion();
