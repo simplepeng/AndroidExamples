@@ -44,10 +44,14 @@ jobject createBitmap(JNIEnv *env,
     jmethodID set_pix_method = env->GetMethodID(bitmapCls, "setPixel", "(III)V");
 
     //1080x1920=2073600
-    for (int x = 0; x < width; ++x) {
-        for (int y = 0; y < height; ++y) {
-//            env->CallVoidMethod(newBitmap, set_pix_method, x, y, (int) pixel[x * y]);
-        }
+//    for (int x = 0; x < width; ++x) {
+//        for (int y = 0; y < height; ++y) {
+////            env->CallVoidMethod(newBitmap, set_pix_method, x, y, (int) pixel[x * y]);
+//        }
+//    }
+    for (int y = 0; y < height; y++) {
+//        fwrite(pFrame->data[0] + y * pFrame->linesize[0], 1, width * 3, file);
+//        env->CallVoidMethod(newBitmap, set_pix_method, x, y, pFrame->data[0] + y * pFrame->linesize[0]);
     }
 
     return newBitmap;
@@ -55,7 +59,8 @@ jobject createBitmap(JNIEnv *env,
 
 void saveBitmap(AVFrame *pFrame, int width, int height) {
 
-    const char *out_file = "/storage/emulated/0/get_cover.ppm";
+//    const char *out_file = "/storage/emulated/0/get_cover.ppm";
+    const char *out_file = "/storage/emulated/0/get_cover.png";
     FILE *file = fopen(out_file, "w+");
     if (!file) {
         logDebug("fopen out file error");
@@ -130,7 +135,7 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
         logDebug("avcodec_parameters_to_context  error");
         return nullptr;
     }
-
+    //打开编解码器
     ret = avcodec_open2(codec_ctx, codec, NULL);
     if (ret < 0) {
         logDebug("打开解码器失败 -- %s", av_err2str(ret));
@@ -143,9 +148,11 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
         return nullptr;
     }
 
-    AVPixelFormat pix_fmt = AV_PIX_FMT_RGB24;
     logDebug("codecContext->width == %d", codec_ctx->width);
     logDebug("codecContext->height == %d", codec_ctx->height);
+
+    AVPixelFormat pix_fmt = AV_PIX_FMT_RGB24;
+    //avpicture_get_size() @deprecated use av_image_get_buffer_size() instead.
     int num_bytes = av_image_get_buffer_size(pix_fmt, codec_ctx->width, codec_ctx->height, 1);
     logDebug("num_bytes == %d", num_bytes);
     uint8_t *buffer = (uint8_t *) av_malloc(num_bytes * sizeof(uint8_t));
@@ -160,7 +167,6 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
         logDebug("av_image_fill_arrays 失败");
         return nullptr;
     }
-
 
     AVPacket pkg;
     struct SwsContext *sws_ctx = sws_getContext(codec_ctx->width, codec_ctx->height,
@@ -195,11 +201,16 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
     int len = sizeof(pFrameRGB->data) / sizeof(pFrameRGB->data[0]);
     logDebug("像素数组 == %d", len);
 
-//    jobject bmp = createBitmap(env, pFrameRGB, codec_ctx->width, codec_ctx->height);
+    jobject bmp = nullptr;
+//    bmp = createBitmap(env, pFrameRGB, codec_ctx->width, codec_ctx->height);
     saveBitmap(pFrameRGB, codec_ctx->width, codec_ctx->height);
 
     //释放资源
     logDebug("开始释放资源");
+    av_free(pFrame);
+    av_free(pFrameRGB);
+    avcodec_close(codec_ctx);
+    avformat_close_input(&ifmt_ctx);
     env->ReleaseStringUTFChars(path, _path);
 
 //    int len = sizeof(pFrameRGB->data) / sizeof(pFrameRGB->data[0]);
@@ -210,7 +221,7 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
 //    }
 //    env->INTARR
 
-    return nullptr;
+    return bmp;
 }
 
 
