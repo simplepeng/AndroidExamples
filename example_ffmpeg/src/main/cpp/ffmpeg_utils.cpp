@@ -68,8 +68,6 @@ jobject createBitmap(JNIEnv *env,
                                                     width, height,
                                                     bitmapConfig);
 
-//    jmethodID set_pix_method = env->GetMethodID(bitmapCls, "setPixel", "(III)V");
-
     return newBitmap;
 }
 
@@ -99,15 +97,17 @@ void saveBitmap(AVFrame *pFrame, int width, int height) {
 //https://segmentfault.com/a/1190000016674715
 //https://github.com/churnlabs/android-ffmpeg-sample/blob/master/jni/native.c
 JNIEXPORT jobject JNICALL
-Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz, jstring path) {
+Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env,
+                                                       jclass clazz,
+                                                       jstring path) {
     //初始化
     const char *_path = env->GetStringUTFChars(path, JNI_FALSE);
     int ret = -1;
-    int video_stream_index = -1;
     logDebug("视频路径 == %s", _path);
 
     //代码逻辑：
     // 解封装 ，找到编解码器，解码，获取yuv，转rgb，封装bitmap返回
+    //封装格式上下文
     AVFormatContext *ifmt_ctx = NULL;
     ret = avformat_open_input(&ifmt_ctx, _path, 0, 0);
     if (ret < 0) {
@@ -120,8 +120,9 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
         return nullptr;
     }
 
-    av_dump_format(ifmt_ctx, 0, _path, 0);
-
+//    av_dump_format(ifmt_ctx, 0, _path, 0);
+    //定义视频流相关的参数
+    int video_stream_index = -1;
     AVStream *pStream = NULL;
     AVCodecParameters *codecpar = NULL;
     //找出视频流
@@ -149,7 +150,7 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
         logDebug("codecContext alloc error");
         return nullptr;
     }
-    //拷贝codec context
+    //拷贝parameters 到 context
     ret = avcodec_parameters_to_context(codec_ctx, codecpar);
     if (ret < 0) {
         logDebug("avcodec_parameters_to_context  error");
@@ -165,6 +166,7 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
         logDebug("打开解码器失败 -- %s", av_err2str(ret));
         return nullptr;
     }
+    //申请一个帧结构体
     AVFrame *pFrame = av_frame_alloc();
 //    AVFrame *pFrameRGB = av_frame_alloc();
 //    if (!pFrame || !pFrameRGB) {
@@ -176,19 +178,19 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
     logDebug("codecContext->height == %d", codec_ctx->height);
 
     //定义像素格式
-    AVPixelFormat pix_fmt = AV_PIX_FMT_ARGB;
+//    AVPixelFormat pix_fmt = AV_PIX_FMT_ARGB;
     //avpicture_get_size() @deprecated use av_image_get_buffer_size() instead.
     //占用内存=宽x高x一个像素占几个字节，但是要考虑align对齐的方式
     //ARGB=1080*1920*4=8294400
     //RGB=1080*1920*3=6220800
     //RGB565=1080*1920*2=
-    int num_bytes = av_image_get_buffer_size(pix_fmt, codec_ctx->width, codec_ctx->height, 1);
-    logDebug("num_bytes == %d", num_bytes);
-    uint8_t *buffer = (uint8_t *) av_malloc(num_bytes * sizeof(uint8_t));
-    if (!buffer) {
-        logDebug("av_malloc buffer 失败");
-        return nullptr;
-    }
+//    int num_bytes = av_image_get_buffer_size(pix_fmt, codec_ctx->width, codec_ctx->height, 1);
+//    logDebug("num_bytes == %d", num_bytes);
+//    uint8_t *buffer = (uint8_t *) av_malloc(num_bytes * sizeof(uint8_t));
+//    if (!buffer) {
+//        logDebug("av_malloc buffer 失败");
+//        return nullptr;
+//    }
 //    ret = av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize, buffer, pix_fmt,
 //                               codec_ctx->width, codec_ctx->height, 1);
 //    if (ret < 0) {
@@ -197,11 +199,11 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
 //    }
 
     AVPacket pkg;
-    struct SwsContext *sws_ctx = sws_getContext(codec_ctx->width, codec_ctx->height,
-                                                codec_ctx->pix_fmt,
-                                                codec_ctx->width, codec_ctx->height,
-                                                pix_fmt, SWS_BILINEAR,
-                                                NULL, NULL, NULL);
+//    struct SwsContext *sws_ctx = sws_getContext(codec_ctx->width, codec_ctx->height,
+//                                                codec_ctx->pix_fmt,
+//                                                codec_ctx->width, codec_ctx->height,
+//                                                pix_fmt, SWS_BILINEAR,
+//                                                NULL, NULL, NULL);
 
     jobject bmp;
     bmp = createBitmap(env, codec_ctx->width, codec_ctx->height);
@@ -241,6 +243,7 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
     }
 
 //    fill_bitmap(&info, addr_pixels, pFrameRGB);
+    //yuv420p to argb
     int linesize = pFrame->width * 4;
     libyuv::I420ToABGR(pFrame->data[0], pFrame->linesize[0], // Y
                        pFrame->data[1], pFrame->linesize[1], // U
@@ -248,16 +251,14 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
                        (uint8_t *) addr_pixels, linesize,  // RGBA
                        pFrame->width, pFrame->height);
 
-    //av_free_packet(&pkg) @deprecated Use av_packet_unref
-    av_packet_unref(&pkg);
-
 
     logDebug("读取首帧完毕");
-
 //    saveBitmap(pFrameRGB, codec_ctx->width, codec_ctx->height);
 
     //释放资源
     logDebug("开始释放资源");
+    //av_free_packet(&pkg) @deprecated Use av_packet_unref
+    av_packet_unref(&pkg);
     AndroidBitmap_unlockPixels(env, bmp);
     av_free(pFrame);
 //    av_free(pFrameRGB);
