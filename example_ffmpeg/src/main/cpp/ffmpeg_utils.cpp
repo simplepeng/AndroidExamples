@@ -47,7 +47,6 @@ static void fill_bitmap(AndroidBitmapInfo *info, void *pixels, AVFrame *pFrame) 
 }
 
 jobject createBitmap(JNIEnv *env,
-                     AVFrame *pFrame,
                      int width, int height) {
 
     jclass bitmapCls = env->FindClass("android/graphics/Bitmap");
@@ -108,7 +107,7 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
     logDebug("视频路径 == %s", _path);
 
     //代码逻辑：
-    // 解封装 ，找到编码器，解码，获取yuv，转rgb，封装bitmap
+    // 解封装 ，找到编解码器，解码，获取yuv，转rgb，封装bitmap返回
     AVFormatContext *ifmt_ctx = NULL;
     ret = avformat_open_input(&ifmt_ctx, _path, 0, 0);
     if (ret < 0) {
@@ -167,11 +166,11 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
         return nullptr;
     }
     AVFrame *pFrame = av_frame_alloc();
-    AVFrame *pFrameRGB = av_frame_alloc();
-    if (!pFrame || !pFrameRGB) {
-        logDebug("申请Frame失败");
-        return nullptr;
-    }
+//    AVFrame *pFrameRGB = av_frame_alloc();
+//    if (!pFrame || !pFrameRGB) {
+//        logDebug("申请Frame失败");
+//        return nullptr;
+//    }
 
     logDebug("codecContext->width == %d", codec_ctx->width);
     logDebug("codecContext->height == %d", codec_ctx->height);
@@ -190,12 +189,12 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
         logDebug("av_malloc buffer 失败");
         return nullptr;
     }
-    ret = av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize, buffer, pix_fmt,
-                               codec_ctx->width, codec_ctx->height, 1);
-    if (ret < 0) {
-        logDebug("av_image_fill_arrays 失败");
-        return nullptr;
-    }
+//    ret = av_image_fill_arrays(pFrameRGB->data, pFrameRGB->linesize, buffer, pix_fmt,
+//                               codec_ctx->width, codec_ctx->height, 1);
+//    if (ret < 0) {
+//        logDebug("av_image_fill_arrays 失败");
+//        return nullptr;
+//    }
 
     AVPacket pkg;
     struct SwsContext *sws_ctx = sws_getContext(codec_ctx->width, codec_ctx->height,
@@ -205,7 +204,7 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
                                                 NULL, NULL, NULL);
 
     jobject bmp;
-    bmp = createBitmap(env, pFrameRGB, codec_ctx->width, codec_ctx->height);
+    bmp = createBitmap(env, codec_ctx->width, codec_ctx->height);
     if (!bmp) {
         logDebug("bmp == null");
     }
@@ -236,9 +235,9 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
         if (!frameFinished)
             continue;
         logDebug("开始转换视频帧数据到图像帧数据");
-        sws_scale(sws_ctx, pFrame->data, pFrame->linesize,
-                  0,
-                  codec_ctx->height, pFrameRGB->data, pFrameRGB->linesize);
+//        sws_scale(sws_ctx, pFrame->data, pFrame->linesize,
+//                  0,
+//                  codec_ctx->height, pFrameRGB->data, pFrameRGB->linesize);
     }
 
 //    fill_bitmap(&info, addr_pixels, pFrameRGB);
@@ -252,11 +251,6 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
     //av_free_packet(&pkg) @deprecated Use av_packet_unref
     av_packet_unref(&pkg);
 
-    ret = AndroidBitmap_unlockPixels(env, bmp);
-    if (ret < 0) {
-        logDebug("unlockPixels error");
-        return nullptr;
-    }
 
     logDebug("读取首帧完毕");
 
@@ -264,8 +258,9 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env, jclass clazz
 
     //释放资源
     logDebug("开始释放资源");
+    AndroidBitmap_unlockPixels(env, bmp);
     av_free(pFrame);
-    av_free(pFrameRGB);
+//    av_free(pFrameRGB);
     avcodec_close(codec_ctx);
     avformat_close_input(&ifmt_ctx);
     env->ReleaseStringUTFChars(path, _path);
