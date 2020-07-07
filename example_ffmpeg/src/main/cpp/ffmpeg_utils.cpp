@@ -138,6 +138,11 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env,
         return nullptr;
     }
 
+    //找到最合适的流
+    int stream_index = av_find_best_stream(ifmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+    logDebug("video_stream_index == %d", video_stream_index);
+    logDebug("stream_index == %d", stream_index);
+
     logDebug("解码器 == %s", avcodec_get_name(codecpar->codec_id));
     AVCodec *codec = avcodec_find_decoder(codecpar->codec_id);
     if (!codec) {
