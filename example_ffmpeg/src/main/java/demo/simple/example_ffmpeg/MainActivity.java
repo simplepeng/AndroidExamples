@@ -61,13 +61,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getBitmap() {
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
-                + "get_cover.mp4";
-//        String path = "https://www.w3school.com.cn/example/html5/mov_bbb.mp4";
-        if (!new File(path).exists()) {
-            toast("path不存在");
-            return;
-        }
+//        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
+//                + "get_cover.mp4";
+        String path = "http://vfx.mtime.cn/Video/2019/03/09/mp4/190309153658147087.mp4";
+//        if (!new File(path).exists()) {
+//            toast("path不存在");
+//            return;
+//        }
 //        Bitmap bitmap = Bitmap.createBitmap(getCover(path), 1080, 1920, Bitmap.Config.RGB_565);
         Bitmap bitmap = getCover(path);
         if (bitmap == null) {
