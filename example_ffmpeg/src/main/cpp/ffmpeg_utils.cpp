@@ -239,9 +239,15 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env,
         if (ret < 0) {
             logDebug("avcodec_decode_video2 error -- %s", av_err2str(ret));
         }
-        if (!frameFinished)
-            continue;
-        logDebug("开始转换视频帧数据到图像帧数据");
+        // Free the packet that was allocated by av_read_frame.
+        av_packet_unref(&pkg);
+        logDebug("frameFinished == %d", frameFinished);
+        if (frameFinished) {
+            logDebug("读取首帧完毕");
+            break;
+        }
+
+//        logDebug("开始转换视频帧数据到图像帧数据");
 //        sws_scale(sws_ctx, pFrame->data, pFrame->linesize,
 //                  0,
 //                  codec_ctx->height, pFrameRGB->data, pFrameRGB->linesize);
@@ -257,13 +263,12 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env,
                        pFrame->width, pFrame->height);
 
 
-    logDebug("读取首帧完毕");
+
 //    saveBitmap(pFrameRGB, codec_ctx->width, codec_ctx->height);
 
     //释放资源
     logDebug("开始释放资源");
     //av_free_packet(&pkg) @deprecated Use av_packet_unref
-    av_packet_unref(&pkg);
     AndroidBitmap_unlockPixels(env, bmp);
     av_free(pFrame);
 //    av_free(pFrameRGB);
