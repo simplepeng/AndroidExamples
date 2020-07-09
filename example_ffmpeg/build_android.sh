@@ -56,7 +56,13 @@ function build_android() {
         --enable-shared \
         --disable-static \
         --enable-jni \
+        --enable-avresample \
+        --enable-postproc \
+        --enable-version3 \
         --disable-doc \
+        --disable-ffmpeg \
+        --disable-ffplay \
+        --disable-ffprobe \
         --disable-programs \
         --disable-symver \
         --target-os=android \
@@ -67,7 +73,7 @@ function build_android() {
         --enable-cross-compile \
         --sysroot=$SYSROOT \
         --extra-cflags="-Os -fpic $OPTIMIZE_CFLAGS" \
-        --extra-ldflags="" \
+        --extra-ldflags="$OPTIMIZE_CFLAGS" \
         --disable-asm \
         $COMMON_FF_CFG_FLAGS
     make clean

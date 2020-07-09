@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("avutil");
         System.loadLibrary("swresample");
         System.loadLibrary("swscale");
+        System.loadLibrary("avresample");
         System.loadLibrary("yuv");
     }
 
