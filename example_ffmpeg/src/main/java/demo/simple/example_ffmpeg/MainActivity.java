@@ -42,12 +42,38 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnGetCover).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                reqPermission();
+                reqPermission(new OnGetPermissionListener() {
+                    @Override
+                    public void onGranted() {
+                        getBitmap();
+                    }
+                });
+            }
+        });
+
+        findViewById(R.id.btnExeCmd).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reqPermission(new OnGetPermissionListener() {
+                    @Override
+                    public void onGranted() {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                exeCmd();
+                            }
+                        }).start();
+                    }
+                });
             }
         });
     }
 
-    private void reqPermission() {
+    interface OnGetPermissionListener {
+        void onGranted();
+    }
+
+    private void reqPermission(final OnGetPermissionListener listener) {
         AndPermission.with(this)
                 .runtime()
                 .permission(Permission.READ_EXTERNAL_STORAGE,
@@ -55,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 .onGranted(new Action<List<String>>() {
                     @Override
                     public void onAction(List<String> data) {
-                        getBitmap();
+                        listener.onGranted();
                     }
                 }).start();
     }
@@ -84,6 +110,18 @@ public class MainActivity extends AppCompatActivity {
         ivCover.setImageBitmap(bitmap);
     }
 
+    //https://juejin.im/post/5b9613265188255c6375ea55
+    private void exeCmd() {
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
+                + "get_cover1.mp4";
+        String outPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
+                + "video.mp4";
+        String cmd = "ffmpeg -i " + path + " " + outPath + " -r";
+        String[] cmdArr = cmd.split(" ");
+        int result = exeCmd(cmdArr);
+        Log.d(TAG, "exe cmd result == " + result);
+    }
+
     static {
         System.loadLibrary("utils");
         System.loadLibrary("avcodec");
@@ -100,4 +138,6 @@ public class MainActivity extends AppCompatActivity {
     public static native String getVersion();
 
     public static native Bitmap getCover(String path);
+
+    public static native int exeCmd(String[] cmd);
 }

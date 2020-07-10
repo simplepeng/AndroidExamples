@@ -13,6 +13,7 @@ extern "C" {
 #include "android/bitmap.h"
 #include "libyuv.h"
 #include "libyuv/convert_argb.h"
+#include "ffmpeg.h"
 
 #define logDebug(...) __android_log_print(ANDROID_LOG_DEBUG,"MainActivity",__VA_ARGS__)
 
@@ -277,6 +278,22 @@ Java_demo_simple_example_1ffmpeg_MainActivity_getCover(JNIEnv *env,
     env->ReleaseStringUTFChars(path, _path);
 
     return bmp;
+}
+
+JNIEXPORT jint JNICALL
+Java_demo_simple_example_1ffmpeg_MainActivity_exeCmd(JNIEnv *env, jclass clazz, jobjectArray cmd) {
+    int argc = env->GetArrayLength(cmd);
+    logDebug("argc == %d", argc);
+    char *argv[argc];
+
+    for (int i = 0; i < argc; ++i) {
+        jstring str = (jstring) env->GetObjectArrayElement(cmd, i);
+        argv[i] = (char *) env->GetStringUTFChars(str, JNI_FALSE);
+        logDebug("%s ", argv[i]);
+    }
+
+    return exe_cmd(argc, argv);
+//    return 1;
 }
 
 

@@ -15,14 +15,14 @@ file(GLOB SO_DIR ${LINK_DIR}/*.so)
 #file(GLOB FFMPEG_DIR src/main/cpp/ffmpeg/*.c)
 #message("FFMPEG_DIR == ${FFMPEG_DIR}")
 
-file(GLOB FFMPEG_DIR src/main/cpp/include/*.c)
 file(GLOB CPP_DIR src/main/cpp/*.cpp)
+file(GLOB FFMPEG_DIR src/main/cpp/include/*.c)
 
 # 添加自己写的 C/C++源文件
 add_library(utils #so名称
         SHARED #动态库
-        ${FFMPEG_DIR}
         ${CPP_DIR}
+        ${FFMPEG_DIR}
         )
 
 #  依赖 NDK中自带的log库

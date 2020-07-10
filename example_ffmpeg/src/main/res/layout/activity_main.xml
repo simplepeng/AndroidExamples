@@ -27,6 +27,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvVersion" />
 
+    <Button
+        android:id="@+id/btnExeCmd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:text="exe_cmd"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toStartOf="@+id/btnGetCover"
+        app:layout_constraintTop_toTopOf="@+id/btnGetCover" />
+
     <ImageView
         android:id="@+id/ivCover"
         android:layout_width="270dp"
