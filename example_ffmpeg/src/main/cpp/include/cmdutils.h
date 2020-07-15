@@ -59,7 +59,7 @@ void register_exit(void (*cb)(int ret));
 /**
  * Wraps exit with a program-specific cleanup routine.
  */
-int exit_program(int ret) av_noreturn;
+int exit_program(int ret);
 
 /**
  * Initialize dynamic library loading

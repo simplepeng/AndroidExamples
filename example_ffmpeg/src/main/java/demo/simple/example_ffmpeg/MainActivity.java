@@ -115,8 +115,13 @@ public class MainActivity extends AppCompatActivity {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
                 + "get_cover1.mp4";
         String outPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
-                + "video.mp4";
-        String cmd = "ffmpeg -i " + path + " " + outPath + " -r";
+                + "video.flv";
+        File outFile = new File(outPath);
+        if (outFile.exists()) {
+            outFile.delete();
+        }
+        //裁剪个10s视频
+        String cmd = "ffmpeg -ss 00:00:00 -t 00:00:1 -i " + path + " -vcodec copy -acodec copy " + outPath;
         String[] cmdArr = cmd.split(" ");
         int result = exeCmd(cmdArr);
         Log.d(TAG, "exe cmd result == " + result);
