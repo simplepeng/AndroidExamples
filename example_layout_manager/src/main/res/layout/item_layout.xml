@@ -6,11 +6,12 @@
 
     <com.example.layout_manager.CircleTextView
         android:id="@+id/iv_item"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:gravity="center"
         android:text="1"
-        android:textColor="@android:color/background_dark"
-        android:textSize="22sp" />
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
 
 </FrameLayout>
