@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        for (i in 0..1000) {
+        for (i in 0..10000) {
             mItems.add(Color.BLACK)
 //            mItems.add(Color.RED)
             mItems.add(Color.YELLOW)
@@ -42,8 +42,9 @@ class MainActivity : AppCompatActivity() {
 
 
         recyclerView.run {
-//            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
+//            layoutManager = LogLinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
             layoutManager = StackLayoutManager()
+//            layoutManager = StackLayoutManager2()
             adapter = ItemAdapter()
         }
 //        recyclerView.adapter?.notifyDataSetChanged()
