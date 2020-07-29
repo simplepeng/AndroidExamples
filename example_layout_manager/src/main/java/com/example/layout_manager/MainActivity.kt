@@ -43,9 +43,13 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.run {
 //            layoutManager = LogLinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
-            layoutManager = StackLayoutManager()
+            layoutManager = StackLayoutManager(listener = { childCount, scrapSize ->
+                tvRv1ChildCount.text = "childCount = $childCount --- scrapSize = $scrapSize"
+            })
 //            layoutManager = StackLayoutManager2()
-            adapter = ItemAdapter()
+            adapter = ItemAdapter(listener = { count ->
+                tvRv1CreateNum.text = " onCreateViewHolder -- $count"
+            })
         }
 //        recyclerView.adapter?.notifyDataSetChanged()
 
@@ -55,12 +59,13 @@ class MainActivity : AppCompatActivity() {
 //        }
     }
 
-    inner class ItemAdapter : RecyclerView.Adapter<ItemHolder>() {
+    inner class ItemAdapter(private val listener: (count: Int) -> Unit) : RecyclerView.Adapter<ItemHolder>() {
 
         private var createHolderCount = 1
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
 //            Log.d(TAG, "onCreateViewHolder -- ${createHolderCount++}")
+            listener(createHolderCount++)
             return ItemHolder(LayoutInflater.from(this@MainActivity).inflate(R.layout.item_layout, parent, false))
         }
 

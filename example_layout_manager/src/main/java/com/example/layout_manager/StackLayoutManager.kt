@@ -20,7 +20,8 @@ import kotlin.math.min
 //https://blog.csdn.net/zxt0601/article/details/52948009
 //https://blog.csdn.net/zxt0601/article/details/52956504
 //https://blog.csdn.net/u011387817/article/details/81875021
-class StackLayoutManager : RecyclerView.LayoutManager() {
+class StackLayoutManager(private val listener: (childCount: Int, scrapSize: Int) -> Unit)
+    : RecyclerView.LayoutManager() {
 
     private val TAG = "StackLayoutManager"
 
@@ -45,6 +46,7 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
         mLastRight = 0
 
         initFill(recycler)
+        listener(childCount, recycler.scrapList.size)
     }
 
     private fun initFill(recycler: RecyclerView.Recycler) {
@@ -86,7 +88,8 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
         //移动
         offsetChildrenHorizontal(-consumed)
 
-//        Log.d(TAG, "childCount=$childCount ---- scrapSize=${recycler.scrapList.size}")
+        Log.d(TAG, "childCount=$childCount ---- scrapSize=${recycler.scrapList.size}")
+        listener(childCount, recycler.scrapList.size)
         return consumed
     }
 
