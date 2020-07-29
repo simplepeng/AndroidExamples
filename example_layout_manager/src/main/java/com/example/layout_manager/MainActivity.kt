@@ -24,9 +24,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        for (i in 0..10000) {
+        for (i in 0..4) {
             mItems.add(Color.BLACK)
-//            mItems.add(Color.RED)
+            mItems.add(Color.RED)
             mItems.add(Color.YELLOW)
             mItems.add(Color.GREEN)
             mItems.add(Color.GRAY)
