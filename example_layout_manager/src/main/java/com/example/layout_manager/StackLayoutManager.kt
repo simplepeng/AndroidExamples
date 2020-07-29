@@ -4,7 +4,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -80,10 +80,11 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
 
         //填充
         val consumed = fill(recycler, dx)
+        Log.d(TAG, "consumed == $consumed")
+        //回收
+        recycler(recycler, consumed)
         //移动
         offsetChildrenHorizontal(-consumed)
-        //回收
-        recycler(recycler, dx)
 
 //        Log.d(TAG, "childCount=$childCount ---- scrapSize=${recycler.scrapList.size}")
         return consumed
@@ -138,7 +139,6 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
             for (i in nextPosition until itemCount) {
                 Log.d(TAG, "fillEnd: $i")
 
-
                 val child = recycler.getViewForPosition(i)
                 addView(child)
                 measureChild(child, 0, 0)
@@ -161,20 +161,25 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
     private fun fillStar(recycler: RecyclerView.Recycler, dx: Int): Int {
         val firstView = getChildAt(0) ?: return dx
         val firstLeft = getDecoratedLeft(firstView)
-        if (firstLeft + dx < 0) {
-            return dx
+        val firstPosition = getPosition(firstView)
+
+        if (firstPosition == 0) {
+            return max(dx, firstLeft)
         }
 
-        mFirstLeft = firstLeft
-        val prePosition = getPosition(firstView)
-        for (i in prePosition - 1 downTo 0) {
-            Log.d(TAG, "fillStar: $i")
-            val child = recycler.getViewForPosition(i)
-            addView(child, 0)
-            measureChild(child, 0, 0)
+        if (firstLeft - dx >= 0) {
+            mFirstLeft = firstLeft
+            val prePosition = firstPosition - 1
+            for (i in prePosition downTo 0) {
+//                Log.d(TAG, "fillStar: $i")
 
-            layoutChildStart(child, mFirstLeft)
-            if (mFirstLeft < 0) break
+                val child = recycler.getViewForPosition(i)
+                addView(child, 0)
+                measureChild(child, 0, 0)
+                layoutChildStart(child, mFirstLeft)
+
+                if (mFirstLeft - dx < 0) break
+            }
         }
         return dx
     }
@@ -197,13 +202,13 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
     private fun recyclerStart(recycler: RecyclerView.Recycler, dx: Int) {
         val firstView = getChildAt(0) ?: return
         val firstRight = getDecoratedRight(firstView)
-        if (firstRight >= 0) {
+        if (firstRight - dx >= 0) {
             return
         }
         for (i in 0 until childCount) {
             val child = getChildAt(i) ?: continue
-            if (getDecoratedRight(child) < 0) {
-                Log.d(TAG, "recyclerStart: ${getPosition(child)}")
+            if (getDecoratedRight(child) - dx < 0) {
+//                Log.d(TAG, "recyclerStart: ${getPosition(child)}")
                 removeAndRecycleView(child, recycler)
             }
         }
@@ -213,13 +218,14 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
     private fun recyclerEnd(recycler: RecyclerView.Recycler, dx: Int) {
         val lastView = getChildAt(childCount - 1) ?: return
         val lastLeft = getDecoratedLeft(lastView)
-        if (lastLeft <= width) {
+        if (lastLeft - dx <= width) {
             return
         }
         for (i in childCount - 1 downTo 0) {
             val child = getChildAt(i) ?: return
-            if (getDecoratedLeft(child) > width) {
+            if (getDecoratedLeft(child) - dx > width) {
                 Log.d(TAG, "recyclerEnd: ${getPosition(child)}")
+                Log.d(TAG, "recyclerEnd: -- ${getDecoratedLeft(child) - dx} -- $width")
                 removeAndRecycleView(child, recycler)
             }
         }
