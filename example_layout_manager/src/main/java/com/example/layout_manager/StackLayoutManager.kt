@@ -147,7 +147,7 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
                 if (mLastRight - dx > width) break
             }
         }
-        return dx
+        return min(dx, mLastRight - width)
     }
 
     private fun layoutChildEnd(child: View, left: Int) {
@@ -207,7 +207,8 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
         for (i in 0 until childCount) {
             val child = getChildAt(i) ?: continue
             if (getDecoratedRight(child) - dx < 0) {
-//                Log.d(TAG, "recyclerStart: ${getPosition(child)}")
+                Log.d(TAG, "recyclerStart: ${getPosition(child)}")
+                Log.d(TAG, "recyclerStart: -- ${getDecoratedRight(child) - dx} -- 0")
                 removeAndRecycleView(child, recycler)
             }
         }
