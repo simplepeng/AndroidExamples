@@ -137,13 +137,12 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
             mLastRight = lastRight
             val nextPosition = lastPosition + 1
             for (i in nextPosition until itemCount) {
-                Log.d(TAG, "fillEnd: $i")
+//                Log.d(TAG, "fillEnd: $i")
 
                 val child = recycler.getViewForPosition(i)
                 addView(child)
                 measureChild(child, 0, 0)
                 layoutChildEnd(child, mLastRight)
-
 
                 if (mLastRight - dx > width) break
             }
@@ -181,7 +180,7 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
                 if (mFirstLeft - dx < 0) break
             }
         }
-        return dx
+        return max(dx, mFirstLeft)
     }
 
     private fun layoutChildStart(child: View, right: Int) {
@@ -224,8 +223,8 @@ class StackLayoutManager : RecyclerView.LayoutManager() {
         for (i in childCount - 1 downTo 0) {
             val child = getChildAt(i) ?: return
             if (getDecoratedLeft(child) - dx > width) {
-                Log.d(TAG, "recyclerEnd: ${getPosition(child)}")
-                Log.d(TAG, "recyclerEnd: -- ${getDecoratedLeft(child) - dx} -- $width")
+//                Log.d(TAG, "recyclerEnd: ${getPosition(child)}")
+//                Log.d(TAG, "recyclerEnd: -- ${getDecoratedLeft(child) - dx} -- $width")
                 removeAndRecycleView(child, recycler)
             }
         }
