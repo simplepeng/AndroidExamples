@@ -3,19 +3,24 @@ package com.example.layout_manager
 import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import kotlin.math.log
 
 /**
  * 使用detachAndScrapAttachedViews方法重新摆放子View
  */
-class CustomLinearLayoutManager2 : RecyclerView.LayoutManager() {
+//https://blog.csdn.net/ccy0122/article/details/90515386
+//https://github.com/CCY0122/FocusLayoutManager
+//https://github.com/Ifxcyr/PathLayoutManager
 
-    companion object {
-        const val TAG = "StackLayoutManager2"
-    }
+//https://github.com/devunwired/recyclerview-playground
+class CustomLinearLayoutManager2(private val listener: (childCount: Int, scrapSize: Int) -> Unit) : RecyclerView.LayoutManager() {
 
-    private var mOffsetX: Int = 0
-    private var mItemWidth = 0
-    private var mItemCount = 0
+    private val TAG = "CLLM2"
+
+    private var mOffsetX = 0
+    private var mLastPosition = 0
+
+    private var mItemWidth: Int = 0
 
     override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
         return RecyclerView.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -29,85 +34,89 @@ class CustomLinearLayoutManager2 : RecyclerView.LayoutManager() {
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State) {
         if (state.itemCount == 0) {
             removeAndRecycleAllViews(recycler)
-            return
         }
+        if (state.isPreLayout) return
+//        detachAndScrapAttachedViews(recycler)
 
-        detachAndScrapAttachedViews(recycler)
+        val first = recycler.getViewForPosition(0)
+        addView(first)
+        measureChild(first, 0, 0)
+        mItemWidth = getDecoratedMeasuredWidth(first)
+        Log.d(TAG, "mItemWidth: $mItemWidth")
+        removeAndRecycleView(first, recycler)
 
-        val firstItem = recycler.getViewForPosition(0)
-        addView(firstItem)
-        measureChild(firstItem, 0, 0)
-        mItemWidth = getDecoratedMeasuredWidth(firstItem)
-        mItemCount = width / mItemWidth + 1
-        removeAndRecycleView(firstItem, recycler)
-
-        fill(recycler, state, 0)
+        fill(recycler, 0)
     }
 
     override fun canScrollHorizontally(): Boolean {
         return true
     }
 
-    //手指从右向左滑动，dx > 0; 手指从左向右滑动，dx < 0;
     override fun scrollHorizontallyBy(dx: Int, recycler: RecyclerView.Recycler, state: RecyclerView.State): Int {
-        Log.d(TAG, "dx == $dx")
         if (dx == 0 || childCount == 0) return 0
+        Log.d(TAG, "dx == $dx")
 
         mOffsetX += dx
-//        Log.d(TAG, "mOffsetX: $mOffsetX")
 
-//        detachAndScrapAttachedViews(recycler)
-//        val consumed = fill(recycler, state, dx)
-//        offsetChildrenHorizontal(dx)
+        val consumed = fill(recycler, dx)
+        Log.d(TAG, "consumed == $consumed")
+
 //        recyclerChildren(recycler)
 
-        return dx
+//        Log.d(TAG, "childCount=$childCount ---- scrapSize=${recycler.scrapList.size}")
+        return consumed
     }
 
-    private fun fill(recycler: RecyclerView.Recycler, state: RecyclerView.State, dx: Int): Int {
-//        Log.d(TAG, "fill")
-        var consumed = dx
-        if (dx < 0 && mOffsetX < 0) {//已达左边界
-            mOffsetX = 0
-            consumed = 0
+    private fun fill(recycler: RecyclerView.Recycler, dx: Int): Int {
+        if (dx < 0) {
+            if (mOffsetX <= 0) {
+                mOffsetX = 0
+                return mOffsetX
+            }
         }
 
         if (dx > 0) {
 
         }
 
-        var firstVisiblePosition = 0
+        var startPosition = 0
         if (mOffsetX > 0) {
-            firstVisiblePosition = mOffsetX / mItemWidth + 1
+            startPosition = mOffsetX / mItemWidth
         }
+        Log.d(TAG, "mOffsetX: $mOffsetX")
+        Log.d(TAG, "startPosition: $startPosition")
 
-        var lastVisiblePosition = itemCount
-
-        var left = 0
+        val firstView = getChildAt(0)
+        var left: Int = if (firstView == null) 0 else getDecoratedLeft(firstView) - dx
         var right: Int
-        for (position in firstVisiblePosition until lastVisiblePosition) {
-            val item = recycler.getViewForPosition(position)
-            addView(item)
-            measureChild(item, 0, 0)
-            right = left + getDecoratedMeasuredWidth(item)
-            layoutDecorated(item, left, 0, right, getDecoratedMeasuredHeight(item))
+
+        detachAndScrapAttachedViews(recycler)
+
+        for (i in startPosition until itemCount - 1) {
+            val child = recycler.getViewForPosition(i)
+            addView(child)
+            measureChild(child, 0, 0)
+
+            right = left + getDecoratedMeasuredWidth(child)
+            layoutDecorated(child, left, 0, right, getDecoratedMeasuredHeight(child))
+
             if (right > width) {
-                lastVisiblePosition = position
+                mLastPosition = i
                 break
             }
             left = right
         }
 
-        return consumed
+        return dx
     }
 
     private fun recyclerChildren(recycler: RecyclerView.Recycler) {
         val scrapList = recycler.scrapList
         if (scrapList.isEmpty()) return
-        for (i in 0 until scrapList.size) {
-            val viewHolder = scrapList[i]
-            removeAndRecycleView(viewHolder.itemView, recycler)
-        }
 
+        for (holder in scrapList) {
+            Log.d(TAG, "recyclerChildren: ${holder.adapterPosition}")
+            removeAndRecycleView(holder.itemView, recycler)
+        }
     }
 }

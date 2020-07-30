@@ -9,6 +9,21 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 
+//https://www.bilibili.com/video/BV1fW411A76o?from=search&seid=2954416328739545743
+//http://wiresareobsolete.com/2014/09/building-a-recyclerview-layoutmanager-part-1/
+//http://wiresareobsolete.com/2014/09/recyclerview-layoutmanager-2/
+//http://wiresareobsolete.com/2015/02/recyclerview-layoutmanager-3/
+
+//https://blog.csdn.net/zxt0601/article/details/52948009-张旭童
+//https://blog.csdn.net/zxt0601/article/details/52956504
+
+//https://blog.csdn.net/u011387817/article/details/81875021-陈子缘
+
+/**
+ * 合格的LayoutManager，
+ * onCreateViewHolder次数不能超过屏幕上显示Item的数量
+ * childCount数量不应大于屏幕上显示的Item数量，而scrapCache缓存区域的Item数量应该是0.
+ */
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -49,10 +64,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         recyclerView2.run {
-            layoutManager = AvatarLinearLayoutManager(listener = { childCount, scrapSize ->
+            layoutManager = CustomLinearLayoutManager2(listener = { childCount, scrapSize ->
 
             })
-            adapter = ItemAdapter("avatar")
+            adapter = ItemAdapter("cllm2")
         }
     }
 

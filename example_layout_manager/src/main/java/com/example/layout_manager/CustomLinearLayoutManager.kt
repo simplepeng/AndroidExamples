@@ -8,22 +8,12 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * https://www.bilibili.com/video/BV1fW411A76o?from=search&seid=2954416328739545743
- * http://wiresareobsolete.com/2014/09/building-a-recyclerview-layoutmanager-part-1/
- */
-/**
- * 合格的LayoutManager，childCount数量不应大于屏幕上显示的Item数量，而scrapCache缓存区域的Item数量应该是0.
- */
-/**
  * 使用offsetChildrenHorizontal方法移动子View
  */
-//https://blog.csdn.net/zxt0601/article/details/52948009
-//https://blog.csdn.net/zxt0601/article/details/52956504
-//https://blog.csdn.net/u011387817/article/details/81875021
 class CustomLinearLayoutManager(private val listener: (childCount: Int, scrapSize: Int) -> Unit)
     : RecyclerView.LayoutManager() {
 
-    private val TAG = "StackLayoutManager"
+    private val TAG = "CLLM1"
 
     private var mLastRight = 0
     private var mFirstLeft = 0
