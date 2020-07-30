@@ -7,23 +7,10 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.max
 import kotlin.math.min
 
-/**
- * https://www.bilibili.com/video/BV1fW411A76o?from=search&seid=2954416328739545743
- * http://wiresareobsolete.com/2014/09/building-a-recyclerview-layoutmanager-part-1/
- */
-/**
- * 合格的LayoutManager，childCount数量不应大于屏幕上显示的Item数量，而scrapCache缓存区域的Item数量应该是0.
- */
-/**
- * 使用offsetChildrenHorizontal方法移动子View
- */
-//https://blog.csdn.net/zxt0601/article/details/52948009
-//https://blog.csdn.net/zxt0601/article/details/52956504
-//https://blog.csdn.net/u011387817/article/details/81875021
-class StackLayoutManager(private val listener: (childCount: Int, scrapSize: Int) -> Unit)
+class AvatarLinearLayoutManager(private val listener: (childCount: Int, scrapSize: Int) -> Unit)
     : RecyclerView.LayoutManager() {
 
-    private val TAG = "StackLayoutManager"
+    private val TAG = "AvatarLM"
 
     private var mLastRight = 0
     private var mFirstLeft = 0
@@ -50,21 +37,15 @@ class StackLayoutManager(private val listener: (childCount: Int, scrapSize: Int)
     }
 
     private fun initFill(recycler: RecyclerView.Recycler) {
-        var left = 0
-        val top = 0
-        var right = 0
-        var bottom = 0
+        var left: Int
         for (i in 0 until itemCount) {
             val child = recycler.getViewForPosition(i)
             addView(child)
             measureChild(child, 0, 0)
 
             left = mLastRight
-            right = left + getDecoratedMeasuredWidth(child)
-            bottom = top + getDecoratedMeasuredHeight(child)
-            layoutDecorated(child, left, top, right, bottom)
+            layoutChildEnd(child, left)
 
-            mLastRight = right
             if (mLastRight > width) break
         }
     }
@@ -82,7 +63,7 @@ class StackLayoutManager(private val listener: (childCount: Int, scrapSize: Int)
 
         //填充
         val consumed = fill(recycler, dx)
-        Log.d(TAG, "consumed == $consumed")
+//        Log.d(TAG, "consumed == $consumed")
         //回收
         recycler(recycler, consumed)
         //移动
@@ -136,8 +117,8 @@ class StackLayoutManager(private val listener: (childCount: Int, scrapSize: Int)
         }
 
         //如果最后一个item的right-dx小于rv的width就要填充item
-        if (lastRight - dx <= width) {
-            mLastRight = lastRight
+        if (lastRight - getDecoratedMeasuredWidth(lastView) / 2 - dx <= width) {
+            mLastRight = lastRight - getDecoratedMeasuredWidth(lastView) / 2
             val nextPosition = lastPosition + 1
             for (i in nextPosition until itemCount) {
 //                Log.d(TAG, "fillEnd: $i")
@@ -156,7 +137,7 @@ class StackLayoutManager(private val listener: (childCount: Int, scrapSize: Int)
     private fun layoutChildEnd(child: View, left: Int) {
         val right = left + getDecoratedMeasuredWidth(child)
         layoutDecorated(child, left, 0, right, getDecoratedMeasuredHeight(child))
-        mLastRight = right
+        mLastRight = right - getDecoratedMeasuredWidth(child) / 2
     }
 
     //dx<0
@@ -170,7 +151,7 @@ class StackLayoutManager(private val listener: (childCount: Int, scrapSize: Int)
         }
 
         if (firstLeft - dx >= 0) {
-            mFirstLeft = firstLeft
+            mFirstLeft = firstLeft - getDecoratedMeasuredWidth(firstView) / 2
             val prePosition = firstPosition - 1
             for (i in prePosition downTo 0) {
 //                Log.d(TAG, "fillStar: $i")

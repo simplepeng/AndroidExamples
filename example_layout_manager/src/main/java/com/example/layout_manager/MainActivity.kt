@@ -1,14 +1,11 @@
 package com.example.layout_manager
 
 import android.graphics.Color
-import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -43,48 +40,60 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.run {
 //            layoutManager = LogLinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
-            layoutManager = StackLayoutManager(listener = { childCount, scrapSize ->
+            layoutManager = CustomLinearLayoutManager(listener = { childCount, scrapSize ->
                 tvRv1ChildCount.text = "childCount = $childCount --- scrapSize = $scrapSize"
             })
-//            layoutManager = StackLayoutManager2()
-            adapter = ItemAdapter(listener = { count ->
+            adapter = ItemAdapter("cllm1", listener = { count ->
                 tvRv1CreateNum.text = " onCreateViewHolder -- $count"
             })
         }
-//        recyclerView.adapter?.notifyDataSetChanged()
 
-//        recyclerView2.run {
-//            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.HORIZONTAL, false)
-//            adapter = ItemAdapter()
-//        }
+        recyclerView2.run {
+            layoutManager = AvatarLinearLayoutManager(listener = { childCount, scrapSize ->
+
+            })
+            adapter = ItemAdapter("avatar")
+        }
     }
 
-    inner class ItemAdapter(private val listener: (count: Int) -> Unit) : RecyclerView.Adapter<ItemHolder>() {
+    inner class ItemAdapter(
+            private val type: String,
+            private val listener: (count: Int) -> Unit = {})
+        : RecyclerView.Adapter<BaseHolder>() {
 
         private var createHolderCount = 1
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseHolder {
 //            Log.d(TAG, "onCreateViewHolder -- ${createHolderCount++}")
             listener(createHolderCount++)
-            return ItemHolder(LayoutInflater.from(this@MainActivity).inflate(R.layout.item_layout, parent, false))
+            return when (type) {
+                "avatar" -> ItemHolder(LayoutInflater.from(this@MainActivity).inflate(R.layout.item_avatar_layout, parent, false))
+                else -> ItemHolder(LayoutInflater.from(this@MainActivity).inflate(R.layout.item_layout, parent, false))
+            }
+
         }
 
         override fun getItemCount(): Int {
             return mItems.size
         }
 
-        override fun onBindViewHolder(holder: ItemHolder, position: Int) {
-//            Log.d(TAG, "onBindViewHolder")
-            holder.iv_item.run {
-                text = position.toString()
-//                setBackgroundColor(mItems[position])
-                setColor(mItems[position])
-            }
+        override fun onBindViewHolder(holder: BaseHolder, position: Int) {
+            holder.bindItem()
         }
 
     }
 
-    inner class ItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val iv_item: CircleTextView = itemView.findViewById(R.id.iv_item)
+    abstract class BaseHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        abstract fun bindItem()
+    }
+
+    inner class ItemHolder(itemView: View) : BaseHolder(itemView) {
+
+        private val ivItem: CircleTextView = itemView.findViewById(R.id.iv_item)
+
+        override fun bindItem() {
+            ivItem.text = adapterPosition.toString()
+            ivItem.setColor(mItems[adapterPosition])
+        }
     }
 }

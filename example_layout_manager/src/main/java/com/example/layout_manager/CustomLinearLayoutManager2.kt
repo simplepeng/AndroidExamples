@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * 使用detachAndScrapAttachedViews方法重新摆放子View
  */
-class StackLayoutManager2 : RecyclerView.LayoutManager() {
+class CustomLinearLayoutManager2 : RecyclerView.LayoutManager() {
 
     companion object {
         const val TAG = "StackLayoutManager2"
