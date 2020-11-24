@@ -3,7 +3,6 @@ package com.example.layout_manager
 import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import kotlin.math.log
 
 /**
  * 使用detachAndScrapAttachedViews方法重新摆放子View
@@ -36,7 +35,6 @@ class CustomLinearLayoutManager2(private val listener: (childCount: Int, scrapSi
             removeAndRecycleAllViews(recycler)
         }
         if (state.isPreLayout) return
-//        detachAndScrapAttachedViews(recycler)
 
         val first = recycler.getViewForPosition(0)
         addView(first)
@@ -45,6 +43,7 @@ class CustomLinearLayoutManager2(private val listener: (childCount: Int, scrapSi
         Log.d(TAG, "mItemWidth: $mItemWidth")
         removeAndRecycleView(first, recycler)
 
+        detachAndScrapAttachedViews(recycler)
         fill(recycler, 0)
     }
 
@@ -107,16 +106,27 @@ class CustomLinearLayoutManager2(private val listener: (childCount: Int, scrapSi
             left = right
         }
 
+//        recyclerChildren(recycler)
+
         return dx
     }
 
     private fun recyclerChildren(recycler: RecyclerView.Recycler) {
-        val scrapList = recycler.scrapList
-        if (scrapList.isEmpty()) return
-
-        for (holder in scrapList) {
-            Log.d(TAG, "recyclerChildren: ${holder.adapterPosition}")
-            removeAndRecycleView(holder.itemView, recycler)
+        for (i in 0 until childCount) {
+            val child = getChildAt(i) ?: continue
+            if (getDecoratedRight(child) < 0 || getDecoratedLeft(child) > width) {
+                removeAndRecycleView(child, recycler)
+            }
         }
     }
+
+//    private fun recyclerChildren(recycler: RecyclerView.Recycler) {
+//        val scrapList = recycler.scrapList
+//        if (scrapList.isEmpty()) return
+//
+//        for (holder in scrapList) {
+//            Log.d(TAG, "recyclerChildren: ${holder.adapterPosition}")
+//            removeAndRecycleView(holder.itemView, recycler)
+//        }
+//    }
 }

@@ -19,6 +19,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 //https://blog.csdn.net/u011387817/article/details/81875021-陈子缘
 
+//https://www.jianshu.com/p/e0f9fd169cde--自定义LayoutManager简明教程
+
 /**
  * 合格的LayoutManager，
  * onCreateViewHolder次数不能超过屏幕上显示Item的数量
