@@ -1,3 +1,4 @@
+include ':example_keyboard_new_api'
 include ':example_handler'
 include ':example_ffmpeg'
 include ':example_motion_layout'
